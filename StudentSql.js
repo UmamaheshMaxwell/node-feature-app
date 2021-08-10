@@ -1,11 +1,15 @@
 const express = require('express')
 const sql = require('mssql')
+const cors = require('cors')
+
+
 
 const app = express();
 const router = express.Router();
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+app.use(cors())
 
 const dbConfig = {
     user: 'sa',
@@ -39,6 +43,27 @@ router.get("/student", (request, response)=>{
         
     })   
 })
+
+router.get("/student/:id", (req, res)=>{ 
+    var studentId = req.params.id
+    sql.connect(dbConfig, (err)=>{
+        if (err) {
+            throw err
+        }             
+        //console.log('Connected to database successfully !!!')
+
+        const request = new sql.Request();
+        const selectQuery =`Select * FROM Student Where Id=${studentId} `
+
+        request.query(selectQuery, (error, data)=>{
+            if(error){
+                throw error
+            }
+            res.json(data.recordset)
+        })
+        
+    }) 
+ });
 
 router.post("/student", (req, res)=>{
 
